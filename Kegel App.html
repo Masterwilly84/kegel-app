@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Allenamento Kegel</title>
+
+  <!-- Aggiungi il link al manifest -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#58c25c">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 0px;
+      background-color: #58c25c;
+      text-align: center;
+    }
+
+    h1 {
+      color: #ffffff;
+      font-size: 35px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    }
+
+    .button {
+      font-size: 20px;
+      margin: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #7e9af8;
+      color: white;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .button:disabled {
+      background-color: #c8d5fc;
+      cursor: not-allowed;
+    }
+
+    #pauseButton {
+      background-color: #7dc3fc;
+    }
+
+    #optionsButton {
+      background-color: #58c2f5; /* Celeste chiaro */
+    }
+
+    .timer-container {
+      display: inline-block;
+      border: 5px solid #ffffff;
+      border-radius: 50%;
+      width: 200px;
+      height: 200px;
+      text-align: center;
+      margin: 20px;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .timer {
+      font-size: 75px;
+      font-weight: bold;
+      color: #ffffff;
+      position: absolute;
+      top: 40px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .cycle-number {
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffffff;
+      position: absolute;
+      bottom: 50px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .status {
+      font-size: 24px;
+      color: #f8f9fa;
+    }
+
+    label {
+      font-size: 20px;
+      color: #f8f9fa;
+    }
+
+    .cycleInput {
+      font-size: 20px;
+      padding: 5px;
+      margin: 10px;
+      width: 60px;
+      text-align: center;
+      background-color: #58c25c;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      border-radius: 10px;
+    }
+
+    .glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 50%;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+      animation: glow 1s infinite ease-in-out;
+    }
+
+    .squeeze-hold-glow, .push-hold-glow {
+      box-shadow: 0 0 25px rgba(255, 255, 255, 1);
+    }
+
+    .squeeze-pulse-glow, .push-pulse-glow {
+      animation: glow 1s infinite ease-in-out;
+    }
+
+    .rest-glow {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    @keyframes glow {
+      0% {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 25px rgba(255, 255, 255, 1);
+      }
+      100% {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    .exercise-squeeze-hold { text-shadow: 1px 1px 2px #fdb768; }
+    .exercise-push-hold { text-shadow: 1px 1px 2px #427ef5; }
+    .exercise-squeeze-pulse { text-shadow: 1px 1px 2px #f5c842; }
+    .exercise-push-pulse { text-shadow: 1px 1px 2px #42c8f5; }
+    .exercise-rest { text-shadow: 1px 1px 2px #fe6767; }
+
+    .input-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .input-box {
+      margin: 0 10px;
+      text-align: center;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 18px;
+      color: white;
+    }
+
+    #startButton, #pauseButton {
+      margin-bottom: 30px;
+    }
+
+    .input-container:nth-child(1), .input-container:nth-child(2) {
+      margin-bottom: 8px;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Allenamento Kegel</h1>
+  <div id="status" class="status">Inizia il tuo allenamento!</div>
+  <div class="timer-container">
+    <div id="timer" class="timer"></div>
+    <div id="cycleNumber" class="cycle-number"></div>
+  </div>
+  
+  <div>
+    <label for="cycleCount">N° Cicli</label>
+    <input id="cycleCount" class="cycleInput" type="number" value="1" min="1" />
+  </div>
+
+  <button id="startButton" class="button">Avvia</button>
+  <button id="pauseButton" class="button" disabled>Pausa</button>
+  <button id="optionsButton" class="button">Opzioni</button> <!-- Tasto Opzioni -->
+
+  <!-- Input per la modifica dei secondi -->
+  <div class="input-container">
+    <div class="input-box">
+      <label class="input-label" for="squeezeHold">
+        <span class="exercise-squeeze-hold">Squeeze Hold</span>
+      </label>
+      <input id="squeezeHold" class="cycleInput" type="number" value="10" min="1" />
+    </div>
+    <div class="input-box">
+      <label class="input-label" for="pushHold">
+        <span class="exercise-push-hold">Push Hold</span>
+      </label>
+      <input id="pushHold" class="cycleInput" type="number" value="10" min="1" />
+    </div>
+  </div>
+
+  <div class="input-container">
+    <div class="input-box">
+      <label class="input-label" for="squeezePulse">
+        <span class="exercise-squeeze-pulse">Squeeze Pulse</span>
+      </label>
+      <input id="squeezePulse" class="cycleInput" type="number" value="25" min="1" />
+    </div>
+    <div class="input-box">
+      <label class="input-label" for="pushPulse">
+        <span class="exercise-push-pulse">Push Pulse</span>
+      </label>
+      <input id="pushPulse" class="cycleInput" type="number" value="15" min="1" />
+    </div>
+  </div>
+
+  <div class="input-container">
+    <div class="input-box">
+      <label class="input-label" for="rest">
+        <span class="exercise-rest">Riposo</span>
+      </label>
+      <input id="rest" class="cycleInput" type="number" value="5" min="1" />
+    </div>
+  </div>
+
+  <script>
+    const exercises = [
+      { name: "<span class='exercise-squeeze-hold'><strong>Mantenere la Contrazione</strong></span>", duration: 10, rest: 5, color: "#fdb768", glowClass: "squeeze-hold-glow" },
+      { name: "<span class='exercise-rest'><strong>Riposo</strong></span>", duration: 5, rest: 0, color: "#fe6767", glowClass: "rest-glow" },
+      { name: "<span class='exercise-push-hold'><strong>Mantenere la Spinta</strong></span>", duration: 10, rest: 5, color: "#427ef5", glowClass: "push-hold-glow" },
+      { name: "<span class='exercise-rest'><strong>Riposo</strong></span>", duration: 5, rest: 0, color: "#fe6767", glowClass: "rest-glow" },
+      { name: "<span class='exercise-squeeze-pulse'><strong>Contrazioni Pulsate</strong></span>", duration: 25, rest: 5, color: "#f5c842", glowClass: "squeeze-pulse-glow" },
+      { name: "<span class='exercise-rest'><strong>Riposo</strong></span>", duration: 5, rest: 0, color: "#fe6767", glowClass: "rest-glow" },
+      { name: "<span class='exercise-push-pulse'><strong>Spinte Pulsate</strong></span>", duration: 15, rest: 10, color: "#42c8f5", glowClass: "push-pulse-glow" },
+      { name: "<span class='exercise-rest'><strong>Riposo</strong></span>", duration: 10, rest: 0, color: "#fe6767", glowClass: "rest-glow" },
+    ];
+
+    let currentExercise = 0;
+    let timerInterval;
+    let exerciseTimer;
+    let isPaused = false;
+    let remainingTime = 0;
+    let totalCycles = 0;
+    let completedCycles = 0;
+
+    const startButton = document.getElementById("startButton");
+    const pauseButton = document.getElementById("pauseButton");
+    const statusElement = document.getElementById("status");
+    const timerElement = document.getElementById("timer");
+    const cycleInput = document.getElementById("cycleCount");
+    const cycleNumberElement = document.getElementById("cycleNumber");
+    const timerContainer = document.querySelector(".timer-container");
+    const optionsButton = document.getElementById("optionsButton");
+
+    startButton.addEventListener("click", function() {
+      startButton.disabled = true;
+      pauseButton.disabled = false;
+      currentExercise = 0;
+      completedCycles = 0;
+      totalCycles = parseInt(cycleInput.value, 10);
+      startExercise();
+    });
+
+    pauseButton.addEventListener("click", function() {
+      if (isPaused) {
+        startExercise();
+        pauseButton.textContent = "Pausa";
+      } else {
+        clearInterval(exerciseTimer);
+        pauseButton.textContent = "Riprendi";
+      }
+      isPaused = !isPaused;
+    });
+
+    // Funzione per mostrare/nascondere i box di input
+    optionsButton.addEventListener("click", function() {
+      const inputs = document.querySelectorAll(".input-container");
+      inputs.forEach(input => {
+        input.style.display = (input.style.display === "none" ? "flex" : "none");
+      });
+    });
+
+    function startExercise() {
+      if (currentExercise < exercises.length) {
+        let exercise = exercises[currentExercise];
+        
+        const squeezeHoldDuration = parseInt(document.getElementById("squeezeHold").value, 10);
+        const pushHoldDuration = parseInt(document.getElementById("pushHold").value, 10);
+        const squeezePulseDuration = parseInt(document.getElementById("squeezePulse").value, 10);
+        const pushPulseDuration = parseInt(document.getElementById("pushPulse").value, 10);
+        const restDuration = parseInt(document.getElementById("rest").value, 10);
+
+        switch (currentExercise) {
+          case 0:
+            exercise.duration = squeezeHoldDuration;
+            break;
+          case 2:
+            exercise.duration = pushHoldDuration;
+            break;
+          case 4:
+            exercise.duration = squeezePulseDuration;
+            break;
+          case 6:
+            exercise.duration = pushPulseDuration;
+            break;
+          case 1:
+          case 3:
+          case 5:
+          case 7:
+            exercise.duration = restDuration;
+            break;
+        }
+
+        statusElement.innerHTML = exercise.name;
+        remainingTime = exercise.duration;
+        timerElement.style.color = "#ffffff";
+        cycleNumberElement.textContent = `Ciclo ${completedCycles + 1} di ${totalCycles}`;
+        document.querySelector(".timer-container").style.borderColor = exercise.color;
+
+        timerContainer.classList.remove("squeeze-hold-glow", "push-hold-glow", "squeeze-pulse-glow", "push-pulse-glow", "rest-glow");
+        timerContainer.classList.add(exercise.glowClass);
+
+        exerciseTimer = setInterval(function() {
+          if (remainingTime === 0) {
+            clearInterval(exerciseTimer);
+            currentExercise++;
+            if (currentExercise === exercises.length) {
+              completedCycles++;
+              if (completedCycles < totalCycles) {
+                currentExercise = 0;
+                startExercise();
+              } else {
+                statusElement.innerHTML = "Allenamento completato!";
+                cycleNumberElement.textContent = "Cicli completati: " + completedCycles;
+                startButton.disabled = false;
+                pauseButton.disabled = true;
+              }
+            } else {
+              startExercise();
+            }
+          } else {
+            remainingTime--;
+            timerElement.textContent = remainingTime;
+          }
+        }, 1000);
+      }
+    }
+  </script>
+</body>
+</html>

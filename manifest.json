@@ -1,0 +1,21 @@
+{
+  "name": "Allenamento Kegel",
+  "short_name": "Kegel",
+  "description": "Allenamento Kegel per smartphone",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#58c25c",
+  "theme_color": "#58c25c",
+  "icons": [
+    {
+      "src": "kegel icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "kegel icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
