@@ -13,7 +13,7 @@
     body {
       font-family: Arial, sans-serif;
       padding: 0px;
-      background-color: #58c25c;
+      background-color: #5cce60;
       text-align: center;
     }
 
@@ -57,6 +57,7 @@
       margin: 20px;
       position: relative;
       box-sizing: border-box;
+      background-color: #4dcf51; /* Colore di sfondo modificato del cerchio */
     }
 
     .timer {
@@ -207,7 +208,7 @@
       <label class="input-label" for="squeezePulse">
         <span class="exercise-squeeze-pulse">Squeeze Pulse</span>
       </label>
-      <input id="squeezePulse" class="cycleInput" type="number" value="25" min="1" />
+      <input id="squeezePulse" class="cycleInput" type="number" value="20" min="1" />
     </div>
     <div class="input-box">
       <label class="input-label" for="pushPulse">
@@ -255,7 +256,27 @@
     const timerContainer = document.querySelector(".timer-container");
     const optionsButton = document.getElementById("optionsButton");
 
+    let wakeLock = null;
+
+    // Funzione per mantenere attivo lo schermo
+    async function preventScreenSleep() {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+      } catch (err) {
+        console.error("Wake lock non supportato", err);
+      }
+    }
+
+    // Funzione per liberare il wake lock quando non più necessario
+    function releaseScreenLock() {
+      if (wakeLock !== null) {
+        wakeLock.release();
+        wakeLock = null;
+      }
+    }
+
     startButton.addEventListener("click", function() {
+      preventScreenSleep(); // Previeni lo standby quando l'allenamento inizia
       startButton.disabled = true;
       pauseButton.disabled = false;
       currentExercise = 0;
@@ -286,7 +307,7 @@
     function startExercise() {
       if (currentExercise < exercises.length) {
         let exercise = exercises[currentExercise];
-        
+
         const squeezeHoldDuration = parseInt(document.getElementById("squeezeHold").value, 10);
         const pushHoldDuration = parseInt(document.getElementById("pushHold").value, 10);
         const squeezePulseDuration = parseInt(document.getElementById("squeezePulse").value, 10);
@@ -323,8 +344,12 @@
         timerContainer.classList.remove("squeeze-hold-glow", "push-hold-glow", "squeeze-pulse-glow", "push-pulse-glow", "rest-glow");
         timerContainer.classList.add(exercise.glowClass);
 
+        // Mostra immediatamente il tempo iniziale
+        remainingTime = exercise.duration;
+        timerElement.textContent = remainingTime;
+
         exerciseTimer = setInterval(function() {
-          if (remainingTime === 0) {
+          if (remainingTime === 1) {
             clearInterval(exerciseTimer);
             currentExercise++;
             if (currentExercise === exercises.length) {
@@ -334,9 +359,10 @@
                 startExercise();
               } else {
                 statusElement.innerHTML = "Allenamento completato!";
-                cycleNumberElement.textContent = "Cicli completati: " + completedCycles;
+                cycleNumberElement.textContent = "Cicli completati " + completedCycles;
                 startButton.disabled = false;
                 pauseButton.disabled = true;
+                releaseScreenLock(); // Rilascia il lock quando l'allenamento è finito
               }
             } else {
               startExercise();
